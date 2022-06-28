@@ -1,25 +1,9 @@
-all: main
+TARGETS = fir_cmodel_fixed_test_delta
 
-CC = clang
-override CFLAGS += -g -Wno-everything -pthread -lm
+CPPFLAGS =
+all: $(TARGETS)
 
-SRCS = $(shell find . -name '.ccls-cache' -type d -prune -o -type f -name '*.c' -print)
-OBJS = $(SRCS:.c=.o)
-DEPS = $(SRCS:.c=.d)
-
-%.d: %.c
-	@set -e; rm -f $@; \
-	$(CC) -MM $(CFLAGS) $< > $@.$$$$; \
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-	rm -f $@.$$$$
-
-include $(DEPS)
-
-main: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o "$@"
-
-main-debug: $(OBJS)
-	$(CC) $(CFLAGS) -O0 $(OBJS) -o "$@"
-
+fir_cmodel_fixed_test%: mac_fixed.c mac_fixed.h fir_cmodel_fixed.c fir_cmodel_fixed.h fir_cmodel_fixed_test%.c
+	gcc $^ $(CPPFLAGS) -o $@ -lm
 clean:
-	rm -f $(OBJS) $(DEPS) main main-debug
+	rm -f $(TARGETS) *.o
