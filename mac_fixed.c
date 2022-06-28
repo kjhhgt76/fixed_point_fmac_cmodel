@@ -1,0 +1,131 @@
+#include "mac_fixed.h"
+
+static uint8_t SAT_FLAG;
+
+uint16_t double_to_q115(const double src)
+{
+    #ifdef DEBUG
+        printf("double_to_q115: src=%f, result=%x\n", src, (int16_t)(src*MUL115));
+        if (src >= 10 || src < -10)
+            printf("src is out of range\n");
+    #endif
+    return (int16_t)(src*MUL115);
+}
+double q115_to_double(const uint16_t src)
+{
+    #ifdef DEBUG
+        printf("q115_to_double: src=%x, result=%f\n", src, (int16_t)(src)/MUL115);
+    #endif
+    return (int16_t)(src)/MUL115;
+}
+double q422_to_double(const uint32_t src)
+{
+    
+    uint8_t sign = (src>>25)%2;
+    int32_t result = sign ? (0xffffffff<<26)|src : src;
+    #ifdef DEBUG
+        printf("q422_to_double: src=%x, result=%x:%f\n", src, result, result/MUL422);
+    #endif
+    return result/MUL422;
+}
+uint32_t q115_to_q422_converter(const uint16_t src)
+{
+    #ifdef DEBUG
+        printf("q115_to_q422_converter: src=%x:%f\n", src, q115_to_double(src));
+    #endif
+    uint8_t sign = (src>>15)%2;
+    uint32_t mask = sign ? (0x07 << 23) : (unsigned)0xffffffff>>7;
+    #ifdef DEBUG
+        printf("mask=%x\n", mask);
+    #endif
+    if (sign)
+    {
+        #ifdef DEBUG
+            printf("converted result=%x:%f\n", (src<<7) | mask, q422_to_double((uint32_t)(src<<7) | mask));
+        #endif
+        return (uint32_t)(src<<7) | mask;
+    }
+    else
+    {
+        #ifdef DEBUG
+            printf("converted result=%x:%f\n", ((src<<7) & mask), q422_to_double((uint32_t)(src<<7) & mask));
+        #endif
+        return (uint32_t)(src<<7) & mask;
+    }
+}
+
+uint16_t q422_to_q115_converter(const uint32_t src, const uint8_t CLIPEN)
+{
+    #ifdef DEBUG
+        printf("q422_to_q115_converter: src=%x:%f\n", src, q422_to_double(src));
+        printf("CLIPEN=%d\n", CLIPEN);
+    #endif
+    uint8_t sign = (src>>25)%2;
+    /*uint8_t out_of_q115_range = !((((src>>22)%2)==((src>>23)%2)) && (((src>>23)%2)==((src>>24)%2)) && (((src>>24)%2)==((src>>25)%2)));*/
+    int out_of_q115_range = (q422_to_double(src) >= 1.0) || (q422_to_double(src) < 1.0);
+    if (CLIPEN && out_of_q115_range)
+    {
+        return sign ? 0x08000 : 0x07fff;
+    }
+    else
+    {
+        return src >> 7;
+    }
+}
+
+uint32_t q115multiplier(const uint16_t X1, const uint16_t X2)
+{
+    #ifdef DEBUG
+        printf("q115multiplier: X1=%x:%f, X2=%x:%f\n", X1, q115_to_double(X1), X2, q115_to_double(X2));
+    #endif
+    int32_t temp_result = ((int16_t)(X1) * (int16_t)(X2))>>8;
+    uint8_t sign = (temp_result>>23)%2;
+    uint32_t mask = sign ? (0x03 << 24) : (unsigned)0xffffffff>>8;
+    #ifdef DEBUG
+        printf("q115multiplier temp_result=%x, sign=%d\n", temp_result, sign);
+    #endif
+    if (sign)
+    {
+        return temp_result | mask;
+    }
+    else
+    {
+        return temp_result & mask;
+    }
+      
+}
+
+uint32_t q422adder(const uint32_t X1, const uint32_t reg)
+{
+    #ifdef DEBUG
+        printf("q422adder: X1=%x:%f, reg=%x:%f\n", X1, X1/MUL422, reg, reg/MUL422);
+    #endif
+    uint32_t result = X1 + reg;
+    if ((X1 & (1<<25)) == (reg & (1<<25)) && (result & (1<<25)) != (X1 & (1<<25)))
+    {
+        #ifdef DEBUG
+            printf("Overflow detected!\n");   
+        #endif
+        SAT_FLAG = 1;
+    }
+    #ifdef DEBUG
+        printf("q422adder: result=%x:%f\n", result, result/MUL422);
+    #endif
+    return result;
+}
+
+uint16_t Accumulator(const uint16_t *X1, const uint16_t *X2, uint8_t clen, uint8_t gain, uint8_t CLIPEN)
+{
+    uint32_t reg = 0;
+    int i = 0;
+    const uint16_t *X1_read_ptr=X1, *X2_read_ptr=X2;
+    for (; i<clen; i++)
+    {
+      uint32_t multi_output = q115multiplier(*X1_read_ptr, *X2_read_ptr);
+      reg = q422adder(multi_output, reg);
+      X1_read_ptr--;
+      X2_read_ptr++;
+    }
+    reg <<= gain;
+    return q422_to_q115_converter(reg, CLIPEN);
+}
