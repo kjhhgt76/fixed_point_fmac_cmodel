@@ -2,6 +2,11 @@
 
 static uint8_t SAT_FLAG;
 
+/*
+* A function that converts a double into a q1.15 number.
+* @param src a double.
+* @return The signed q1.15 number.
+*/
 uint16_t double_to_q115(const double src)
 {
     #ifdef DEBUG
@@ -11,6 +16,12 @@ uint16_t double_to_q115(const double src)
     #endif
     return (int16_t)(src*MUL115);
 }
+
+/*
+* A function that converts q1.15 number into a double.
+* @param src a q1.15 number.
+* @return The signed double.
+*/
 double q115_to_double(const uint16_t src)
 {
     #ifdef DEBUG
@@ -18,6 +29,12 @@ double q115_to_double(const uint16_t src)
     #endif
     return (int16_t)(src)/MUL115;
 }
+
+/*
+* A function that converts q4.22 number into a double.
+* @param src a q4.22 number.
+* @return The signed double.
+*/
 double q422_to_double(const uint32_t src)
 {
     
@@ -28,6 +45,12 @@ double q422_to_double(const uint32_t src)
     #endif
     return result/MUL422;
 }
+
+/*
+* A function that converts q1.15 number into a q4.22 number.
+* @param src q1.15 number.
+* @return The sign-extended q4.22 result.
+*/
 uint32_t q115_to_q422_converter(const uint16_t src)
 {
     #ifdef DEBUG
@@ -54,6 +77,12 @@ uint32_t q115_to_q422_converter(const uint16_t src)
     }
 }
 
+/*
+* A function that converts q4.22 number into q1.15 number.
+* @param src q4.22 number.
+* @param CLIPEN if 1, saturate the output. Else, truncate it.
+* @return The q1.15 result.
+*/
 uint16_t q422_to_q115_converter(const uint32_t src, const uint8_t CLIPEN)
 {
     #ifdef DEBUG
@@ -61,8 +90,8 @@ uint16_t q422_to_q115_converter(const uint32_t src, const uint8_t CLIPEN)
         printf("CLIPEN=%d\n", CLIPEN);
     #endif
     uint8_t sign = (src>>25)%2;
-    /*uint8_t out_of_q115_range = !((((src>>22)%2)==((src>>23)%2)) && (((src>>23)%2)==((src>>24)%2)) && (((src>>24)%2)==((src>>25)%2)));*/
-    int out_of_q115_range = (q422_to_double(src) >= 1.0) || (q422_to_double(src) < 1.0);
+    int out_of_q115_range = !((((src>>22)%2)==((src>>23)%2)) && (((src>>23)%2)==((src>>24)%2)) && (((src>>24)%2)==((src>>25)%2)));
+    //int out_of_q115_range = (q422_to_double(src) >= 1.0) || (q422_to_double(src) < -1.0);
     if (CLIPEN && out_of_q115_range)
     {
         return sign ? 0x08000 : 0x07fff;
