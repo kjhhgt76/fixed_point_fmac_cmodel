@@ -1,4 +1,5 @@
-TARGETS = fir_cmodel_fixed_test_delta
+TARGETS = fir_cmodel_fixed_test_delta \
+	fir_cmodel_fixed_test_random_filein
 
 CPPFLAGS =
 all: $(TARGETS)

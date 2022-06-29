@@ -32,6 +32,7 @@ void q115_array_to_double_array(const uint16_t q115_arr[], double double_arr[], 
   for (; i<arr_size; i++)
     double_arr[i] = q115_to_double(q115_arr[i]);
 }
+
 /**
 * A function performs fixed-point fir.
 * @param data the q1.15 input array.
