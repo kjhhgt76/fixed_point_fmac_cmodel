@@ -27,7 +27,7 @@ int main(void)
     q115_array_to_double_array(q115_data, double_data, DATA_LEN);
   #endif
   
-  uint16_t q115_output[DATA_LEN-COEF_LEN+1];
+  uint16_t q115_output[OUTPUT_LEN];
   int gain = 0;
   fixed_fir(q115_data, q115_coefs, q115_output, DATA_LEN, COEF_LEN, gain, 1);
   double double_output[OUTPUT_LEN];

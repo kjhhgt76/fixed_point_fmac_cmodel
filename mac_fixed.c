@@ -2,6 +2,38 @@
 
 static uint8_t SAT_FLAG;
 
+/**
+* A function that can convert a double array into a q1.15 array.
+* @param double_arr a double array. The length of it should be same as q115_arr.
+* @param q115_arr a q1.15 array that will store the result.
+* @param arr_size the length of two array.
+**/
+void double_array_to_q115_array(const double double_arr[], uint16_t q115_arr[], int arr_size)
+{
+  int i = 0;
+  for (; i<arr_size; i++)
+  {
+
+    q115_arr[i] = double_to_q115(double_arr[i]);
+    #ifdef DEBUG
+      printf("q115_arr[%d]=%x\n", i, q115_arr[i]);
+    #endif
+  }
+}
+
+/**
+* A function that can convert a q1.15 array into a double array.
+* @param q115_arr a 16bit q1.15 array. The length of it should be same as double_arr.
+* @param double_arr a double array that will store the result.
+* @param arr_size the length of two array.
+**/
+void q115_array_to_double_array(const uint16_t q115_arr[], double double_arr[], int arr_size)
+{
+  int i = 0;
+  for (; i<arr_size; i++)
+    double_arr[i] = q115_to_double(q115_arr[i]);
+}
+
 /*
 * A function that converts a double into a q1.15 number.
 * @param src a double.
@@ -90,8 +122,9 @@ uint16_t q422_to_q115_converter(const uint32_t src, const uint8_t CLIPEN)
         printf("CLIPEN=%d\n", CLIPEN);
     #endif
     uint8_t sign = (src>>25)%2;
+		// out_of_q115_range detect whether src is bigger than 2^22-1 or less than -2^22 
     int out_of_q115_range = !((((src>>22)%2)==((src>>23)%2)) && (((src>>23)%2)==((src>>24)%2)) && (((src>>24)%2)==((src>>25)%2)));
-    //int out_of_q115_range = (q422_to_double(src) >= 1.0) || (q422_to_double(src) < -1.0);
+
     if (CLIPEN && out_of_q115_range)
     {
         return sign ? 0x08000 : 0x07fff; // 0x8000=-1, 0x07fff=1-2^-15
@@ -162,9 +195,11 @@ uint32_t q422adder(const uint32_t X1, const uint32_t reg)
 * @param clen the length of coefficient array.
 * @param gain a programmable gain. range is [0,7].
 * @param CLIPEN an optional flag that allows saturating the output if it is 1.
+* @param Y the start pointer of q1.15 output array, for iir only.
+* @param M the total number of coef of iir, for iir only.
 * @return the output of accumulator.
 **/
-uint16_t Accumulator(const uint16_t *X1, const uint16_t *X2, uint8_t clen, uint8_t gain, uint8_t CLIPEN)
+uint32_t Accumulator(const uint16_t *X1, const uint16_t *X2, uint8_t clen)
 {
     uint32_t reg = 0; // reg is q4.22
     int i = 0;
@@ -176,9 +211,5 @@ uint16_t Accumulator(const uint16_t *X1, const uint16_t *X2, uint8_t clen, uint8
       X1_read_ptr++;
       X2_read_ptr--;
     }
-    reg <<= gain;
-    #ifdef DEBUG
-      printf("reg=%x, %d\n", reg, reg);
-    #endif
-    return q422_to_q115_converter(reg, CLIPEN);
+    return reg;
 }
