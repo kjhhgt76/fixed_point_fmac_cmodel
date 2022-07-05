@@ -7,7 +7,6 @@
 uint16_t fir_accu_op(const uint16_t *X1, const uint16_t *X2, uint8_t clen, uint8_t gain, uint8_t CLIPEN)
 {
 	uint32_t reg = Accumulator(X1, X2, clen);
-	reg <<= gain;
   #if defined(DEBUG) || defined(REG)
       printf("reg=%x, %d, %f\n", reg, reg, q422_to_double(reg));
 	#endif

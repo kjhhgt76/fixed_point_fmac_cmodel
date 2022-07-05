@@ -6,7 +6,6 @@
 uint16_t iir_accu_op(const uint16_t *X1, const uint16_t *X2, const uint16_t *Y, uint8_t clen, uint8_t M, uint8_t gain, uint8_t CLIPEN)
 {
 	uint32_t reg = q422adder(Accumulator(X1, X2-M, clen-M), Accumulator(Y, X2, M));
-	reg <<= gain;
   #if defined(DEBUG) || defined(REG)
       printf("reg=%x, %d, %f\n", reg, reg, q422_to_double(reg));
 	#endif

@@ -109,17 +109,18 @@ uint32_t q115_to_q422_converter(const uint16_t src)
     }
 }
 
-/*
+/**
 * A function that converts q4.22 number into q1.15 number. The user can optionally saturate the output.
 * @param src q4.22 number.
 * @param CLIPEN if 1, saturate the output. Else, truncate it.
+* @param gain the gain R. The result will be shifted by left R bits given that saturation condition is not satisfied.
 * @return The q1.15 result.
-*/
+**/
 uint16_t q422_to_q115_converter(const uint32_t src, const uint8_t CLIPEN, const uint8_t gain)
 {
     #ifdef DEBUG
         printf("q422_to_q115_converter: src=%x:%f\n", src, q422_to_double(src));
-        printf("CLIPEN=%d\n", CLIPEN);
+        printf("CLIPEN=%d, gain=%d\n", CLIPEN, gain);
     #endif
     uint8_t sign = (src>>25)%2;
 		// out_of_q115_range detect whether src is bigger than 2^22-1 or less than -2^22 
@@ -194,7 +195,7 @@ uint16_t q422_to_q115_converter(const uint32_t src, const uint8_t CLIPEN, const 
     }
     else
     {
-        return src >> 7;
+        return (src << gain) >> 7;
     }
 }
 
@@ -256,11 +257,7 @@ uint32_t q422adder(const uint32_t X1, const uint32_t reg)
 * @param X1 the start pointer of q1.15 input array, i.e. x[n-(N-1)]
 * @param X2 the end pointer of q1.15 coefficient array, i.e. h[N-1]
 * @param clen the length of coefficient array.
-* @param gain a programmable gain. range is [0,7].
-* @param CLIPEN an optional flag that allows saturating the output if it is 1.
-* @param Y the start pointer of q1.15 output array, for iir only.
-* @param M the total number of coef of iir, for iir only.
-* @return the output of accumulator.
+* @return the register of accumulator.
 **/
 uint32_t Accumulator(const uint16_t *X1, const uint16_t *X2, uint8_t clen)
 {
