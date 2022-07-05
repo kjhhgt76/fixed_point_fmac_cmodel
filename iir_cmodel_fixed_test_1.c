@@ -7,9 +7,11 @@
 #define INPUT_LEN DATA_LEN+COEF_LEN-1-M
 #define OUTPUT_LEN DATA_LEN+M
 #define INPUT_IS_DOUBLE 1
+#define GAIN 2
+
 int main()
 {
-	  int i = 0;
+	int i = 0;
   #if INPUT_IS_DOUBLE==1
 		// {b[0], b[1], a[1], a[2]}
     double double_coefs[COEF_LEN] = {0.25, -0.5, 0.175, -0.025};
@@ -33,18 +35,17 @@ int main()
     q115_array_to_double_array(q115_data, double_data, DATA_LEN);
   #endif
   
-  int gain = 2;
 	uint16_t q115_input[INPUT_LEN] = {0};
 	for (i = COEF_LEN-1-M; i < INPUT_LEN; i++)
 	{
 		q115_input[i] = q115_data[i-(COEF_LEN-1-M)];
 	}
-  fixed_iir(q115_input, q115_coefs, q115_output, OUTPUT_LEN, COEF_LEN, M, gain, 1);
+  fixed_iir(q115_input, q115_coefs, q115_output, OUTPUT_LEN, COEF_LEN, M, GAIN, 1);
 	
   q115_array_to_double_array(q115_output, double_output, OUTPUT_LEN);
   if (SAT_FLAG)
     printf("Overflow detected!\n");
-  printf("gain=%d\n", gain);
+  printf("gain=%d\n", GAIN);
   printf("double coef array: ");
   for (i = 0; i < COEF_LEN; i++)
     printf("%.10f ", double_coefs[i]);

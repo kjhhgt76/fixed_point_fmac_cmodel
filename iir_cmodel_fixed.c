@@ -10,7 +10,7 @@ uint16_t iir_accu_op(const uint16_t *X1, const uint16_t *X2, const uint16_t *Y, 
   #if defined(DEBUG) || defined(REG)
       printf("reg=%x, %d, %f\n", reg, reg, q422_to_double(reg));
 	#endif
-  return q422_to_q115_converter(reg, CLIPEN); 
+  return q422_to_q115_converter(reg, CLIPEN, gain); 
 }
 
 void fixed_iir(const uint16_t *data, const uint16_t *coefs, uint16_t *dataout, const uint8_t outlen, const uint8_t clen, const uint8_t M, const uint8_t gain, const uint8_t CLIPEN)

@@ -11,7 +11,7 @@ uint16_t fir_accu_op(const uint16_t *X1, const uint16_t *X2, uint8_t clen, uint8
   #if defined(DEBUG) || defined(REG)
       printf("reg=%x, %d, %f\n", reg, reg, q422_to_double(reg));
 	#endif
-  return q422_to_q115_converter(reg, CLIPEN);
+  return q422_to_q115_converter(reg, CLIPEN, gain);
 }
 /**
 * A function performs fixed-point fir.

@@ -115,7 +115,7 @@ uint32_t q115_to_q422_converter(const uint16_t src)
 * @param CLIPEN if 1, saturate the output. Else, truncate it.
 * @return The q1.15 result.
 */
-uint16_t q422_to_q115_converter(const uint32_t src, const uint8_t CLIPEN)
+uint16_t q422_to_q115_converter(const uint32_t src, const uint8_t CLIPEN, const uint8_t gain)
 {
     #ifdef DEBUG
         printf("q422_to_q115_converter: src=%x:%f\n", src, q422_to_double(src));
@@ -123,7 +123,70 @@ uint16_t q422_to_q115_converter(const uint32_t src, const uint8_t CLIPEN)
     #endif
     uint8_t sign = (src>>25)%2;
 		// out_of_q115_range detect whether src is bigger than 2^22-1 or less than -2^22 
-    int out_of_q115_range = !((((src>>22)%2)==((src>>23)%2)) && (((src>>23)%2)==((src>>24)%2)) && (((src>>24)%2)==((src>>25)%2)));
+    int out_of_q115_range;
+		switch(gain)
+		{
+			case 0: out_of_q115_range = !((((src>>22)%2)==((src>>23)%2)) 
+				&& (((src>>23)%2)==((src>>24)%2)) 
+				&& (((src>>24)%2)==((src>>25)%2)));
+				break;
+			case 1: out_of_q115_range = !((((src>>21)%2)==((src>>22)%2)) 
+				&& (((src>>22)%2)==((src>>23)%2)) 
+				&& (((src>>23)%2)==((src>>24)%2)) 
+				&& (((src>>24)%2)==((src>>25)%2)));
+				break;
+			case 2: out_of_q115_range = !((((src>>20)%2)==((src>>21)%2)) 
+				&& (((src>>21)%2)==((src>>22)%2)) 
+				&& (((src>>22)%2)==((src>>23)%2)) 
+				&& (((src>>23)%2)==((src>>24)%2)) 
+				&& (((src>>24)%2)==((src>>25)%2)));
+				break;
+			case 3: out_of_q115_range = !((((src>>19)%2)==((src>>20)%2))
+				&& (((src>>20)%2)==((src>>21)%2)) 
+				&& (((src>>21)%2)==((src>>22)%2)) 
+				&& (((src>>22)%2)==((src>>23)%2)) 
+				&& (((src>>23)%2)==((src>>24)%2)) 
+				&& (((src>>24)%2)==((src>>25)%2)));
+				break;
+			case 4: out_of_q115_range = !((((src>>18)%2)==((src>>19)%2))
+				&& (((src>>19)%2)==((src>>20)%2))
+				&& (((src>>20)%2)==((src>>21)%2)) 
+				&& (((src>>21)%2)==((src>>22)%2)) 
+				&& (((src>>22)%2)==((src>>23)%2)) 
+				&& (((src>>23)%2)==((src>>24)%2)) 
+				&& (((src>>24)%2)==((src>>25)%2)));
+				break;
+			case 5: out_of_q115_range = !((((src>>17)%2)==((src>>18)%2))
+				&& (((src>>18)%2)==((src>>19)%2))
+				&& (((src>>19)%2)==((src>>20)%2))
+				&& (((src>>20)%2)==((src>>21)%2)) 
+				&& (((src>>21)%2)==((src>>22)%2)) 
+				&& (((src>>22)%2)==((src>>23)%2)) 
+				&& (((src>>23)%2)==((src>>24)%2)) 
+				&& (((src>>24)%2)==((src>>25)%2)));
+				break;
+			case 6: out_of_q115_range = !((((src>>16)%2)==((src>>17)%2))
+				&& (((src>>17)%2)==((src>>18)%2))
+				&& (((src>>18)%2)==((src>>19)%2))
+				&& (((src>>19)%2)==((src>>20)%2))
+				&& (((src>>20)%2)==((src>>21)%2)) 
+				&& (((src>>21)%2)==((src>>22)%2)) 
+				&& (((src>>22)%2)==((src>>23)%2)) 
+				&& (((src>>23)%2)==((src>>24)%2)) 
+				&& (((src>>24)%2)==((src>>25)%2)));
+				break;
+			case 7: out_of_q115_range = !((((src>>15)%2)==((src>>16)%2))
+				&& (((src>>16)%2)==((src>>17)%2))
+				&& (((src>>17)%2)==((src>>18)%2))
+				&& (((src>>18)%2)==((src>>19)%2))
+				&& (((src>>19)%2)==((src>>20)%2))
+				&& (((src>>20)%2)==((src>>21)%2)) 
+				&& (((src>>21)%2)==((src>>22)%2)) 
+				&& (((src>>22)%2)==((src>>23)%2)) 
+				&& (((src>>23)%2)==((src>>24)%2)) 
+				&& (((src>>24)%2)==((src>>25)%2)));
+				break;
+		}
 
     if (CLIPEN && out_of_q115_range)
     {

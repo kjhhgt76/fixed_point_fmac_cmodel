@@ -12,7 +12,7 @@
 #define INPUT_LEN DATA_LEN+COEF_LEN-1
 #define OUTPUT_LEN DATA_LEN
 #define INPUT_IS_DOUBLE 0
-
+#define GAIN 0
 int main(void)
 {
 	char r_filename[100], w_filename[100];
@@ -56,8 +56,7 @@ int main(void)
 	  #endif
 	  
 	  uint16_t q115_output[OUTPUT_LEN];
-	  int gain = 0;
-	  fixed_fir(q115_data, q115_coefs, q115_output, INPUT_LEN, COEF_LEN, gain, 0);
+	  fixed_fir(q115_data, q115_coefs, q115_output, INPUT_LEN, COEF_LEN, GAIN, 0);
 	  double double_output[OUTPUT_LEN];
 	  q115_array_to_double_array(q115_output, double_output, OUTPUT_LEN);
 		
