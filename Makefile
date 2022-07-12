@@ -1,7 +1,8 @@
 TARGETS = fir_cmodel_fixed_test_delta \
 	fir_cmodel_fixed_test_random_filein \
 	fir_cmodel_fixed_test_random_filein_maxcsum \
-	iir_cmodel_fixed_test_1
+	iir_cmodel_fixed_test_1 \
+	iir_cmodel_fixed_test_filein
 
 CFLAGS =
 all: $(TARGETS)

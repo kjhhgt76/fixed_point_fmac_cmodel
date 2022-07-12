@@ -56,7 +56,7 @@ int main(void)
 	  #endif
 	  
 	  uint16_t q115_output[OUTPUT_LEN];
-	  fixed_fir(q115_data, q115_coefs, q115_output, INPUT_LEN, COEF_LEN, GAIN, 0);
+	  fixed_fir(q115_data, q115_coefs, q115_output, INPUT_LEN, COEF_LEN, GAIN, 1);
 	  double double_output[OUTPUT_LEN];
 	  q115_array_to_double_array(q115_output, double_output, OUTPUT_LEN);
 		

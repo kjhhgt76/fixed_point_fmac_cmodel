@@ -6,7 +6,7 @@
 #define MUL115 (double)(1<<15)
 #define MUL422 (double)(1<<22)
 
-static uint8_t SAT_FLAG;
+extern uint8_t SAT_FLAG;
 
 void double_array_to_q115_array(const double double_arr[], uint16_t q115_arr[], int arr_size);
 void q115_array_to_double_array(const uint16_t q115_arr[], double double_arr[], int arr_size);

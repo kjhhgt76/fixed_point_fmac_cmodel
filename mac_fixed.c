@@ -1,6 +1,6 @@
 #include "mac_fixed.h"
 
-static uint8_t SAT_FLAG;
+uint8_t SAT_FLAG = 0;
 
 /**
 * A function that can convert a double array into a q1.15 array.

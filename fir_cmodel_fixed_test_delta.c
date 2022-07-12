@@ -7,8 +7,8 @@
 #define COEF_LEN 3
 #define DATA_LEN 5
 #define OUTPUT_LEN (DATA_LEN-COEF_LEN+1)
-#define INPUT_IS_DOUBLE 1
-#define GAIN 7
+#define INPUT_IS_DOUBLE 0
+#define GAIN 0
 int main(void)
 {
   int i = 0;
@@ -20,8 +20,8 @@ int main(void)
     double_array_to_q115_array(double_coefs, q115_coefs, COEF_LEN);
     double_array_to_q115_array(double_data, q115_data, DATA_LEN);
   #else
-    uint16_t q115_coefs[COEF_LEN] = {32767, 32767, 32767, 32767, 32767};
-    uint16_t q115_data[DATA_LEN] = {0, 0, 0, 0, 32767, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    uint16_t q115_coefs[COEF_LEN] = {0x8000, 0x8000, 0x8ccd};
+    uint16_t q115_data[DATA_LEN] = {0, 0x4000, 0x8000, 0, 0};
     double double_coefs[COEF_LEN];
     double double_data[DATA_LEN];
     q115_array_to_double_array(q115_coefs, double_coefs, COEF_LEN);
